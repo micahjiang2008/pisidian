@@ -447,7 +447,10 @@
   </div>
 
   <div class="pisidian-footer">
-    <div class="context-info">{statusText}  {workDir}</div>
+    <div class="context-info">
+      <span class="context-info__path">{workDir}</span>
+      <span class="context-info__stats">{statusText}</span>
+    </div>
     <MessageEditor
       {models}
       {modelsLoading}

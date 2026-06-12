@@ -195,12 +195,27 @@
 }
 
 .context-info {
-  text-align: left;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
   font-size: var(--font-smaller);
   color: var(--text-muted);
   padding: 4px 4px 2px;
   margin-bottom: 2px;
   line-height: 1;
+}
+
+.context-info__path {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+  flex: 1;
+}
+
+.context-info__stats {
+  flex-shrink: 0;
+  margin-left: 8px;
 }
 
 /* ===== Welcome (empty state) ===== */
@@ -374,7 +389,7 @@
 .message-editor {
   position: relative;
   border-radius: 8px;
-  border: 1px solid var(--background-modifier-border);
+  border: 1px solid var(--background-modifier-border-hover);
   background: var(--background-primary);
 }
 
@@ -548,6 +563,8 @@
 /* ===== Selection Chip ===== */
 
 .message-editor__selection {
+  display: flex;
+  min-width: 0;
   padding: 8px;
   font-size: var(--font-smaller);
   cursor: default;
