@@ -26,6 +26,7 @@
 
   let models = $state<ModelProviderOption[]>([]);
   let modelsLoading = $state(true);
+  let piAvailable = $state(true);
   let thinkingLevelMapByModel = $state<Record<string, ThinkingLevelMap | null>>({});
   let messages = $state<Message[]>([
     {
@@ -131,6 +132,7 @@
       const result = await listModels();
       models = result.models;
       thinkingLevelMapByModel = result.thinkingLevelMapByModel;
+      piAvailable = true;
     } catch (error) {
       console.warn('[pisidian] Failed to refresh model list:', error);
     } finally {
@@ -382,6 +384,7 @@
       })
       .catch((error) => {
         console.warn('Failed to load pi model list', error);
+        if (!cancelled) piAvailable = false;
       })
       .finally(() => {
         if (!cancelled) modelsLoading = false;
@@ -517,6 +520,20 @@
             {/each}
           {/if}
         </div>
+      </div>
+    </div>
+  {/if}
+
+  {#if !piAvailable}
+    <div class="pisidian-blocked">
+      <div class="pisidian-blocked-content">
+        <svg class="pi-logo-mark" viewBox="0 0 800 800" aria-hidden="true" focusable="false">
+          <path fill="currentColor" fill-rule="evenodd" d="M165.29 165.29H517.36V400H400V517.36H282.65V634.72H165.29ZM282.65 282.65V400H400V282.65Z"></path>
+          <path fill="currentColor" d="M517.36 400H634.72V634.72H517.36Z"></path>
+        </svg>
+        <p class="pisidian-blocked-title">未检测到 pi-coding-agent</p>
+        <p class="pisidian-blocked-hint">请确保已安装并可执行 <code>pi</code> 命令</p>
+        <button type="button" class="pisidian-blocked-retry" onclick={handleRefresh}>重试</button>
       </div>
     </div>
   {/if}
