@@ -229,6 +229,10 @@
   margin-top: 2px;
 }
 
+.message--assistant .message__copy-btn {
+  margin-top: 0;
+}
+
 /* ===== MessageList ===== */
 
 .message-stack,
@@ -288,7 +292,8 @@
 
 .message__bubble--user {
   max-width: 75%;
-  background: var(--background-primary) !important;
+  background: var(--background-secondary) !important;
+  border: 1px solid var(--background-modifier-border) !important;
   color: var(--text-normal);
 }
 
@@ -369,13 +374,12 @@
 .message-editor {
   position: relative;
   border-radius: 8px;
+  border: 1px solid var(--background-modifier-border);
   background: var(--background-primary);
 }
 
 .message-editor--dragging {
-  outline: 2px solid var(--interactive-accent);
-  outline-offset: -2px;
-  border-radius: 8px;
+  border-color: var(--interactive-accent);
 }
 
 .message-editor__drop-overlay {
@@ -407,8 +411,6 @@
   max-height: calc(1.5rem * 4 + 1rem);
   resize: none;
   border: 0 !important;
-  border-bottom: 1px solid var(--background-modifier-border) !important;
-  border-radius: 0;
   background: transparent;
   padding: 6px 10px 2px;
   font-size: var(--font-smaller);
