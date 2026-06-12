@@ -22,7 +22,7 @@
 }
 
 .pisidian-wrapper {
-  --pisidian-message-font-size: var(--font-text-size);
+  --pisidian-message-font-size: var(--font-smaller);
 
   display: flex;
   flex-direction: column;
@@ -45,7 +45,7 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  font-size: var(--font-text-size);
+  font-size: var(--font-smaller);
   line-height: 20px;
   font-weight: 600;
   color: var(--text-normal);
@@ -102,7 +102,7 @@
   justify-content: space-between;
   padding: 10px 14px;
   border-bottom: 1px solid var(--background-modifier-border);
-  font-size: var(--font-text-size);
+  font-size: var(--font-smaller);
   font-weight: 600;
   color: var(--text-normal);
   flex-shrink: 0;
@@ -283,14 +283,12 @@
 .message__bubble--thinking {
   max-width: 85%;
   background: var(--background-secondary) !important;
-  border: 1px solid var(--background-modifier-border) !important;
   color: var(--text-normal);
 }
 
 .message__bubble--user {
   max-width: 75%;
   background: var(--background-primary) !important;
-  border: 1px solid var(--background-modifier-border) !important;
   color: var(--text-normal);
 }
 
@@ -371,13 +369,13 @@
 .message-editor {
   position: relative;
   border-radius: 8px;
-  border: 1px solid var(--background-modifier-border);
   background: var(--background-primary);
-  transition: border-color 0.15s ease;
 }
 
 .message-editor--dragging {
-  border-color: var(--interactive-accent);
+  outline: 2px solid var(--interactive-accent);
+  outline-offset: -2px;
+  border-radius: 8px;
 }
 
 .message-editor__drop-overlay {
@@ -409,9 +407,11 @@
   max-height: calc(1.5rem * 4 + 1rem);
   resize: none;
   border: 0 !important;
+  border-bottom: 1px solid var(--background-modifier-border) !important;
+  border-radius: 0;
   background: transparent;
   padding: 6px 10px 2px;
-  font-size: var(--font-text-size);
+  font-size: var(--font-smaller);
   line-height: 1.5;
   color: var(--text-normal);
   outline: none !important;
