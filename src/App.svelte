@@ -533,7 +533,10 @@
         </svg>
         <p class="pisidian-blocked-title">未检测到 pi-coding-agent</p>
         <p class="pisidian-blocked-hint">请确保已安装并可执行 <code>pi</code> 命令</p>
-        <button type="button" class="pisidian-blocked-retry" onclick={handleRefresh}>重试</button>
+        <button type="button" class="mod-cta" onclick={handleRefresh}>
+          <span use:obsidianIcon={'refresh-cw'}></span>
+          重新检查
+        </button>
       </div>
     </div>
   {/if}

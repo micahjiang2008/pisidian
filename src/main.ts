@@ -1,6 +1,7 @@
 import { Plugin, PluginSettingTab, ItemView, WorkspaceLeaf, TFile } from 'obsidian';
 import { mount, unmount } from 'svelte';
 import App from './App.svelte';
+import SettingsTabComponent from './components/SettingsTab.svelte';
 import { DEFAULT_SETTINGS } from './settings';
 import type { PisidianSettings } from './settings';
 
@@ -143,13 +144,16 @@ class PisidianSettingTab extends PluginSettingTab {
     const { containerEl } = this;
     containerEl.empty();
 
-    // Mount the Svelte component as the settings UI
-    const targetEl = containerEl.createDiv({ cls: 'pisidian-settings' });
-
-    const vaultPath = (this.app.vault.adapter as any).basePath;
-    this.svelteComponent = mount(App, {
+    const targetEl = containerEl.createDiv();
+    this.svelteComponent = mount(SettingsTabComponent, {
       target: targetEl,
-      props: { vaultPath, app: this.app },
+      props: {
+        settings: this.plugin.settings,
+        onSave: async (settings: PisidianSettings) => {
+          this.plugin.settings = settings;
+          await this.plugin.saveSettings();
+        },
+      },
     }) as unknown as Record<string, any>;
   }
 
