@@ -8,15 +8,16 @@
   import UserMessage from './messages/UserMessage.svelte';
   import type { Message } from '../types';
 
-  let { messages }: {
+  let { messages, collapseThreshold = 80 }: {
     messages: Message[];
+    collapseThreshold?: number;
   } = $props();
 </script>
 
 <div class="message-list">
   {#each messages as message (message.id)}
     {#if message.role === 'user'}
-      <UserMessage {message} />
+      <UserMessage {message} {collapseThreshold} />
     {:else if message.role === 'assistant'}
       <AssistantMessage {message} />
     {:else if message.role === 'system'}

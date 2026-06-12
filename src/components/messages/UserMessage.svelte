@@ -2,17 +2,17 @@
   import CopyButton from '../CopyButton.svelte';
   import type { Message } from '../../types';
 
-  let { message }: {
+  let { message, collapseThreshold = 80 }: {
     message: Message;
+    collapseThreshold?: number;
   } = $props();
 
-  const COLLAPSE_THRESHOLD = 80;
   let localCollapsed = $state(false);
 
-  const isLong = $derived(message.content.length > COLLAPSE_THRESHOLD);
-  const isCollapsed = $derived(isLong && localCollapsed);
+  const canCollapse = $derived(collapseThreshold > 0 && message.content.length > collapseThreshold);
+  const isCollapsed = $derived(canCollapse && localCollapsed);
   const displayText = $derived(
-    isCollapsed ? message.content.slice(0, COLLAPSE_THRESHOLD) : message.content,
+    isCollapsed ? message.content.slice(0, collapseThreshold) : message.content,
   );
 
   // 同步外部 collapsed 变化（如历史会话加载）
@@ -23,7 +23,7 @@
   });
 
   function toggle() {
-    if (!isLong) return;
+    if (!canCollapse) return;
     localCollapsed = !localCollapsed;
   }
 </script>
@@ -36,9 +36,9 @@
     class:message__bubble--collapsed={isCollapsed}
     onclick={toggle}
     onkeydown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); } }}
-    role={isLong ? 'button' : undefined}
-    tabindex={isLong ? 0 : undefined}
-    title={isLong ? '点击' + (isCollapsed ? '展开' : '收起') : undefined}
+    role={canCollapse ? 'button' : undefined}
+    tabindex={canCollapse ? 0 : undefined}
+    title={canCollapse ? '点击' + (isCollapsed ? '展开' : '收起') : undefined}
   >
     {displayText}
     {#if isCollapsed}

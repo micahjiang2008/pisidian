@@ -7,6 +7,7 @@
   import { splitStreamingMessage } from './utils/message-utils';
   import { listModels } from './model-catalog';
   import type { App as ObsidianApp } from 'obsidian';
+  import type { PisidianSettings } from './settings';
   import { PiSession } from './rpc';
   import { createWorkDirMessage, getInitialWorkDir } from './utils/workdir-utils';
   import type { SessionStats, SessionInfo } from './rpc';
@@ -20,9 +21,10 @@
   interface Props {
     vaultPath?: string;
     app?: ObsidianApp;
+    settings?: PisidianSettings;
   }
 
-  let { vaultPath, app }: Props = $props();
+  let { vaultPath, app, settings }: Props = $props();
 
   let models = $state<ModelProviderOption[]>([]);
   let modelsLoading = $state(true);
@@ -55,6 +57,21 @@
       : [],
   );
   const messageStream = $derived(splitStreamingMessage(displayMessages));
+
+  /** 从 pi get_state 返回的模型名匹配 model list，作为初始选中值 */
+  const initialModelValue = $derived.by(() => {
+    if (!sessionStats?.modelLabel) return undefined;
+    const label = sessionStats.modelLabel.toLowerCase();
+    for (const group of models) {
+      for (const m of group.models) {
+        const key = m.value.toLowerCase();
+        if (key === label || key.endsWith('/' + label) || ('/' + label) === key.slice(key.lastIndexOf('/'))) {
+          return m.value;
+        }
+      }
+    }
+    return undefined;
+  });
 
   const statusText = $derived.by<string>(() => {
     if (!sessionStats?.contextPercent || !sessionStats?.contextWindow) return '0%/0M';
@@ -89,8 +106,6 @@
   let sessions = $state<SessionInfo[]>([]);
   let loadedSessionPath: string | null = $state(null);
 
-  const MAX_SELECTION_LENGTH = 5000;
-
   // 在 mouseup 时缓存 Obsidian 编辑器中的选区，避免焦点转移后选区丢失
   let cachedSelection: SelectedContext | null = null;
 
@@ -107,8 +122,9 @@
       return;
     }
     const activeFile = app.workspace.getActiveFile();
-    const snippet = selected.length > MAX_SELECTION_LENGTH
-      ? selected.slice(0, MAX_SELECTION_LENGTH)
+    const maxLen = settings?.selectionMaxLength ?? 5000;
+    const snippet = selected.length > maxLen
+      ? selected.slice(0, maxLen)
       : selected;
     cachedSelection = {
       text: snippet,
@@ -117,6 +133,7 @@
   }
 
   function onEditorFocus() {
+    if (!settings?.autoAttachSelection) return;
     if (cachedSelection) {
       selectedText = cachedSelection;
     }
@@ -435,7 +452,7 @@
   <div class="pisidian-content" bind:this={contentEl}>
     {#if hasRealMessages || messageStream.streamingMessage}
       <div class="message-stack">
-        <MessageList messages={messageStream.stableMessages} />
+        <MessageList messages={messageStream.stableMessages} collapseThreshold={settings?.collapseThreshold} />
         {#if messageStream.streamingMessage}
           <StreamingMessage message={messageStream.streamingMessage} />
         {/if}
@@ -457,6 +474,7 @@
     <MessageEditor
       {models}
       {modelsLoading}
+      initialModelValue
       {thinkingLevelMapByModel}
       {thinkingLevels}
       {selectedText}

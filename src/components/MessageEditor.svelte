@@ -14,6 +14,7 @@
     attachments?: Attachment[];
     models?: ModelProviderOption[];
     modelsLoading?: boolean;
+    initialModelValue?: string;
     thinkingLevelMapByModel?: Record<string, ThinkingLevelMap | null>;
     thinkingLevels?: SelectOption[];
     selectedText?: SelectedContext | null;
@@ -33,6 +34,7 @@
     attachments: initialAttachments = [],
     models = [],
     modelsLoading = false,
+    initialModelValue = undefined,
     thinkingLevelMapByModel = {},
     thinkingLevels = [],
     selectedText = null,
@@ -165,6 +167,14 @@
     if (!firstModel) {
       selectedModel = '';
       selectedThinkingLevel = '';
+      return;
+    }
+
+    // 优先使用 pi get_state 返回的当前模型
+    if (initialModelValue && modelOptions.some((opt) => opt.value === initialModelValue)) {
+      if (selectedModel !== initialModelValue) {
+        handleModelChange(initialModelValue);
+      }
       return;
     }
 

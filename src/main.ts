@@ -98,15 +98,16 @@ class PisidianView extends ItemView {
 
     // Mount the Svelte component
     const vaultPath = (this.plugin.app.vault.adapter as any).basePath;
+    const settings = this.plugin.settings;
     this.svelteComponent = mount(App, {
       target: targetEl,
-      props: { vaultPath, app: this.plugin.app },
+      props: { vaultPath, app: this.plugin.app, settings },
     }) as unknown as Record<string, any>;
 
     // Auto-attach the currently focused file when it opens in Obsidian
     this.registerEvent(
       this.plugin.app.workspace.on('file-open', async (file: TFile | null) => {
-        if (!file || file.extension !== 'md') return;
+        if (!file || file.extension !== 'md' || !this.plugin.settings.autoAttachFile) return;
         try {
           const content = await this.plugin.app.vault.read(file);
           const blob = new Blob([content], { type: 'text/markdown' });
