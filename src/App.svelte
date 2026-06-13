@@ -24,7 +24,14 @@
     settings?: PisidianSettings;
   }
 
-  let { vaultPath, app, settings }: Props = $props();
+  import { DEFAULT_SETTINGS } from './settings';
+
+  let { vaultPath, app, settings: initialSettings }: Props = $props();
+  let settings = $state({ ...DEFAULT_SETTINGS });
+
+  $effect(() => {
+    if (initialSettings) settings = initialSettings;
+  });
 
   let models = $state<ModelProviderOption[]>([]);
   let modelsLoading = $state(true);
@@ -425,10 +432,18 @@
     // 监听 mouseup 以缓存编辑器选区（不依赖 focus 时序）
     window.addEventListener('mouseup', captureSelection);
 
+    // 监听 settings 变更事件
+    function onSettingsChange(e: Event) {
+      const detail = (e as CustomEvent).detail;
+      if (detail) settings = detail;
+    }
+    document.addEventListener('pisidian:settings-changed', onSettingsChange);
+
     return () => {
       cancelled = true;
       piSession?.dispose();
       window.removeEventListener('mouseup', captureSelection);
+      document.removeEventListener('pisidian:settings-changed', onSettingsChange);
     };
   });
 </script>

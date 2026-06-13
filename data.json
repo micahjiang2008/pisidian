@@ -1,0 +1,8 @@
+{
+  "greeting": "Hello from Pisidian!",
+  "piPath": "",
+  "autoAttachFile": false,
+  "autoAttachSelection": false,
+  "selectionMaxLength": 5000,
+  "collapseThreshold": 80
+}

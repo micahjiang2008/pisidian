@@ -46,8 +46,9 @@ export default class PisidianPlugin extends Plugin {
 
   async saveSettings() {
     await this.saveData(this.settings);
-    // Emit custom event so the settings tab can react
+    // Emit custom event so the settings tab and views can react
     (this.app.workspace as any).trigger('pisidian:settings-changed');
+    document.dispatchEvent(new CustomEvent('pisidian:settings-changed', { detail: this.settings }));
   }
 
   activateView() {

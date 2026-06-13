@@ -12,24 +12,29 @@
   let { settings, piVersion, onSave }: Props = $props();
 
   let local: PisidianSettings = $state({ ...DEFAULT_SETTINGS });
+  let saveTimer: ReturnType<typeof setTimeout> | null = null;
 
   $effect(() => {
     local = { ...settings };
   });
 
-  async function save() {
-    await onSave(local);
+  function autoSave() {
+    if (saveTimer) clearTimeout(saveTimer);
+    saveTimer = setTimeout(async () => {
+      await onSave(local);
+    }, 300);
   }
 
-  function handleKeydown(e: KeyboardEvent) {
-    if ((e.ctrlKey || e.metaKey) && e.key === 's') {
-      e.preventDefault();
-      save();
-    }
-  }
+  // Trigger autoSave on any local change
+  $effect(() => {
+    void local.piPath;
+    void local.autoAttachFile;
+    void local.autoAttachSelection;
+    void local.selectionMaxLength;
+    void local.collapseThreshold;
+    autoSave();
+  });
 </script>
-
-<svelte:window onkeydown={handleKeydown} />
 
 <div class="pisidian-settings-page">
   <h2>Pisidian 设置</h2>
@@ -127,13 +132,6 @@
         max="1000"
         step="10"
       />
-    </div>
-  </div>
-
-  <div class="setting-item">
-    <div class="setting-item-info"></div>
-    <div class="setting-item-control">
-      <button type="button" class="mod-cta" onclick={save}>保存</button>
     </div>
   </div>
 </div>
