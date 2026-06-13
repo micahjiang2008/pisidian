@@ -1,4 +1,4 @@
-import { Plugin, PluginSettingTab, ItemView, WorkspaceLeaf, TFile } from 'obsidian';
+import { Plugin, PluginSettingTab, ItemView, WorkspaceLeaf } from 'obsidian';
 import { mount, unmount } from 'svelte';
 import App from './App.svelte';
 import SettingsTabComponent from './components/SettingsTab.svelte';
@@ -102,28 +102,8 @@ class PisidianView extends ItemView {
     const settings = this.plugin.settings;
     this.svelteComponent = mount(App, {
       target: targetEl,
-      props: { vaultPath, app: this.plugin.app, settings },
+      props: { vaultPath, settings },
     }) as unknown as Record<string, any>;
-
-    // Auto-attach the currently focused file when it opens in Obsidian
-    this.registerEvent(
-      this.plugin.app.workspace.on('file-open', async (file: TFile | null) => {
-        if (!file || file.extension !== 'md' || !this.plugin.settings.autoAttachFile) return;
-        try {
-          const content = await this.plugin.app.vault.read(file);
-          const blob = new Blob([content], { type: 'text/markdown' });
-          const fileObj = new File([blob], file.name, {
-            type: 'text/markdown',
-            lastModified: file.stat.mtime,
-          });
-          document.dispatchEvent(
-            new CustomEvent('pisidian:auto-attach', { detail: fileObj }),
-          );
-        } catch (e) {
-          console.warn('[pisidian] Failed to auto-attach file:', e);
-        }
-      }),
-    );
   }
 
   async onClose() {

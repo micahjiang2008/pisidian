@@ -52,69 +52,6 @@
     </div>
   </div>
 
-  <!-- 自动附加文件 -->
-  <div class="setting-item">
-    <div class="setting-item-info">
-      <div class="setting-item-name">自动附加当前文件</div>
-      <div class="setting-item-description">打开 .md 文件时自动将其附加到编辑器</div>
-    </div>
-    <div class="setting-item-control">
-      <div
-        class="checkbox-container"
-        class:is-enabled={local.autoAttachFile}
-        role="switch"
-        aria-checked={local.autoAttachFile}
-        tabindex="0"
-        onclick={() => { local.autoAttachFile = !local.autoAttachFile; requestSave(); }}
-        onkeydown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); local.autoAttachFile = !local.autoAttachFile; requestSave(); } }}
-      >
-        <input type="checkbox" tabindex="-1" checked={local.autoAttachFile} />
-      </div>
-    </div>
-  </div>
-
-  <!-- 自动附加选区 -->
-  <div class="setting-item">
-    <div class="setting-item-info">
-      <div class="setting-item-name">自动附加选区</div>
-      <div class="setting-item-description">点选输入框时自动附加编辑器中的选中文本</div>
-    </div>
-    <div class="setting-item-control">
-      <div
-        class="checkbox-container"
-        class:is-enabled={local.autoAttachSelection}
-        role="switch"
-        aria-checked={local.autoAttachSelection}
-        tabindex="0"
-        onclick={() => { local.autoAttachSelection = !local.autoAttachSelection; requestSave(); }}
-        onkeydown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); local.autoAttachSelection = !local.autoAttachSelection; requestSave(); } }}
-      >
-        <input type="checkbox" tabindex="-1" checked={local.autoAttachSelection} />
-      </div>
-    </div>
-  </div>
-
-  <!-- 选区最大字数 -->
-  <div class="setting-item">
-    <div class="setting-item-info">
-      <div class="setting-item-name">选区最大字数</div>
-      <div class="setting-item-description">超过此字数的选区将被截断</div>
-    </div>
-    <div class="setting-item-control">
-      <input
-        type="number"
-        value={local.selectionMaxLength}
-        min="100"
-        max="50000"
-        step="100"
-        oninput={(e) => {
-          local.selectionMaxLength = Number((e.target as HTMLInputElement).value);
-          requestSave();
-        }}
-      />
-    </div>
-  </div>
-
   <!-- 折叠阈值 -->
   <div class="setting-item">
     <div class="setting-item-info">

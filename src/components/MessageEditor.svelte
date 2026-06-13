@@ -5,11 +5,6 @@
   import ModelSelector from './ModelSelector.svelte';
   import type { Attachment, ModelProviderOption, SelectOption, ThinkingLevelMap } from '../types';
 
-  interface SelectedContext {
-    text: string;
-    source: string;
-  }
-
   interface Props {
     attachments?: Attachment[];
     models?: ModelProviderOption[];
@@ -17,15 +12,11 @@
     initialModelValue?: string;
     thinkingLevelMapByModel?: Record<string, ThinkingLevelMap | null>;
     thinkingLevels?: SelectOption[];
-    selectedText?: SelectedContext | null;
-    clearAttachmentsSignal?: number;
     isStreaming?: boolean;
     isProcessingFiles?: boolean;
     disabled?: boolean;
     vaultPath?: string;
     workDir?: string;
-    onFocus?: () => void;
-    onClearSelection?: () => void;
     onSubmit?: (input: { text: string; attachments: Attachment[] }) => void;
     onStop?: () => void;
     onWorkDirChange?: (workDir: string) => void | Promise<void>;
@@ -38,15 +29,11 @@
     initialModelValue = undefined,
     thinkingLevelMapByModel = {},
     thinkingLevels = [],
-    selectedText = null,
-    clearAttachmentsSignal = 0,
     isStreaming = false,
     isProcessingFiles = false,
     disabled = false,
     vaultPath,
     workDir,
-    onFocus,
-    onClearSelection,
     onSubmit,
     onStop,
     onWorkDirChange,
@@ -91,9 +78,6 @@
       .map(getSupportedAttachment)
       .filter((a): a is Attachment => a !== null);
 
-    if (nextAttachments.length > 0) {
-      onClearSelection?.();
-    }
     attachments = [...attachments, ...nextAttachments];
   }
 
@@ -121,13 +105,6 @@
   });
 
   const modelOptions = $derived(models.flatMap((group) => group.models));
-  const selectionPreview = $derived.by(() => {
-    if (!selectedText) return '';
-    const maxLen = 100;
-    return selectedText.text.length > maxLen
-      ? selectedText.text.slice(0, maxLen) + '...'
-      : selectedText.text;
-  });
 
   const canSubmit = $derived(
     !disabled && !isStreaming && !isProcessingFiles && (value.trim().length > 0 || attachments.length > 0),
@@ -341,28 +318,6 @@
     if (fileInput) fileInput.value = '';
   }
 
-  // 选中文本时清空已有附件，避免重复上下文（通过信号触发，避免循环）
-  $effect(() => {
-    if (clearAttachmentsSignal > 0) {
-      attachments.forEach(revokePreview);
-      attachments = [];
-    }
-  });
-
-  // 监听来自 main.ts 的自动附件事件（焦点进入文档时自动附加）
-  $effect(() => {
-    function handler(e: CustomEvent) {
-      const file = e.detail as File;
-      if (file) {
-        attachments.forEach(revokePreview);
-        attachments = [];
-        appendFiles([file]);
-      }
-    }
-    document.addEventListener('pisidian:auto-attach', handler);
-    return () => document.removeEventListener('pisidian:auto-attach', handler);
-  });
-
   $effect(() => {
     return () => {
       attachments.forEach(revokePreview);
@@ -390,17 +345,6 @@
     </div>
   {/if}
 
-  {#if selectedText}
-    <!-- svelte-ignore a11y_no_static_element_interactions -->
-    <div
-      class="message-editor__selection"
-      title="右击移除"
-      oncontextmenu={(e) => { e.preventDefault(); onClearSelection?.(); }}
-    >
-      <span class="message-editor__selection-text">已选择 {selectedText.text.length} 字: {selectionPreview}</span>
-    </div>
-  {/if}
-
   <div class="message-editor__input-area">
     <textarea
       bind:this={textareaEl}
@@ -411,7 +355,6 @@
       class="message-editor__textarea"
       onkeydown={handleKeyDown}
       onpaste={handlePaste}
-      onmousedown={() => onFocus?.()}
     ></textarea>
 
   </div>

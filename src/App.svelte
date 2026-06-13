@@ -6,25 +6,18 @@
   import StreamingMessage from './components/StreamingMessage.svelte';
   import { splitStreamingMessage } from './utils/message-utils';
   import { listModels } from './model-catalog';
-  import type { App as ObsidianApp } from 'obsidian';
   import type { PisidianSettings } from './settings';
   import { PiSession } from './rpc';
   import { createWorkDirMessage, getInitialWorkDir } from './utils/workdir-utils';
   import type { SessionStats, SessionInfo } from './rpc';
   import type { Attachment, Message, ModelProviderOption, SelectOption, ThinkingLevelMap } from './types';
 
-  interface SelectedContext {
-    text: string;
-    source: string;
-  }
-
   interface Props {
     vaultPath?: string;
-    app?: ObsidianApp;
     settings?: PisidianSettings;
   }
 
-  let { vaultPath, app, settings: initialSettings }: Props = $props();
+  let { vaultPath, settings: initialSettings }: Props = $props();
   function initS() { return { ...initialSettings } as PisidianSettings; }
   let settings = $state(initS());
 
@@ -103,49 +96,9 @@
   let workDir = $state('');
   let isStreaming = $state(false);
   let sessionStats: SessionStats | null = $state(null);
-  let selectedText: SelectedContext | null = $state(null);
-  let clearAttachmentsSignal = $state(0);
   let showSessionList = $state(false);
   let sessions = $state<SessionInfo[]>([]);
   let loadedSessionPath: string | null = $state(null);
-
-  // 在 mouseup 时缓存 Obsidian 编辑器中的选区，避免焦点转移后选区丢失
-  let cachedSelection: SelectedContext | null = null;
-
-  function captureSelection() {
-    if (!app) return;
-    const editor = app.workspace.activeEditor;
-    if (!editor) {
-      cachedSelection = null;
-      return;
-    }
-    const selected = editor.getSelection();
-    if (!selected.trim()) {
-      cachedSelection = null;
-      return;
-    }
-    const activeFile = app.workspace.getActiveFile();
-    const maxLen = settings?.selectionMaxLength ?? 5000;
-    const snippet = selected.length > maxLen
-      ? selected.slice(0, maxLen)
-      : selected;
-    cachedSelection = {
-      text: snippet,
-      source: activeFile?.name ?? '未命名',
-    };
-  }
-
-  function onEditorFocus() {
-    if (!settings?.autoAttachSelection) return;
-    if (cachedSelection) {
-      selectedText = cachedSelection;
-      clearAttachmentsSignal++;
-    }
-  }
-
-  function clearSelectedText() {
-    selectedText = null;
-  }
 
   async function handleRefresh() {
     modelsLoading = true;
@@ -218,7 +171,6 @@
     // 中止正在进行的请求
     piSession?.abort();
     isStreaming = false;
-    clearSelectedText();
     // 清空消息列表
     messages = [{
       id: 'system-1',
@@ -308,17 +260,6 @@
           : `用户上传了以下文件内容：\n\n${fileContents.join('\n\n')}`;
       }
     }
-
-    // 拼接选区上下文
-    if (selectedText) {
-      const selectionSuffix = `\n\n--- 上下文 来自 ${selectedText.source} ---\n${selectedText.text}`;
-      piMessage = piMessage ? `${piMessage}${selectionSuffix}` : selectionSuffix.trim();
-
-      const userSelectionNote = `\n\n已选择 ${selectedText.text.length} 字:\n${selectedText.text}`;
-      userContent = userContent ? `${userContent}${userSelectionNote}` : userSelectionNote.trim();
-    }
-
-    clearSelectedText();
 
     // ---- 用户消息 ----
     const userMsg: Message = {
@@ -426,21 +367,9 @@
         // 静默失败，不影响使用
       });
 
-    // 监听 mouseup 以缓存编辑器选区（不依赖 focus 时序）
-    window.addEventListener('mouseup', captureSelection);
-
-    // 监听 settings 变更事件
-    function onSettingsChange(e: Event) {
-      const detail = (e as CustomEvent).detail;
-      if (detail) settings = detail;
-    }
-    document.addEventListener('pisidian:settings-changed', onSettingsChange);
-
     return () => {
       cancelled = true;
       piSession?.dispose();
-      window.removeEventListener('mouseup', captureSelection);
-      document.removeEventListener('pisidian:settings-changed', onSettingsChange);
     };
   });
 </script>
@@ -487,15 +416,11 @@
       {models}
       {modelsLoading}
       initialModelValue
-      {clearAttachmentsSignal}
       {thinkingLevelMapByModel}
       {thinkingLevels}
-      {selectedText}
       {vaultPath}
       {workDir}
       {isStreaming}
-      onFocus={onEditorFocus}
-      onClearSelection={clearSelectedText}
       onSubmit={handleSubmit}
       onStop={() => piSession?.abort()}
       onWorkDirChange={handleWorkDirChange}
