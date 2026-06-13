@@ -2,5 +2,6 @@ node_modules/
 /main.js
 /main.css
 /styles.css
+data.json
 .DS_Store
 *.map
