@@ -353,14 +353,6 @@
     return () => document.removeEventListener('pisidian:auto-attach', handler);
   });
 
-  // 选中文本时清空已有附件，避免重复上下文
-  $effect(() => {
-    if (selectedText) {
-      attachments.forEach(revokePreview);
-      attachments = [];
-    }
-  });
-
   $effect(() => {
     return () => {
       attachments.forEach(revokePreview);
