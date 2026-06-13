@@ -18,6 +18,7 @@
     thinkingLevelMapByModel?: Record<string, ThinkingLevelMap | null>;
     thinkingLevels?: SelectOption[];
     selectedText?: SelectedContext | null;
+    clearAttachmentsSignal?: number;
     isStreaming?: boolean;
     isProcessingFiles?: boolean;
     disabled?: boolean;
@@ -38,6 +39,7 @@
     thinkingLevelMapByModel = {},
     thinkingLevels = [],
     selectedText = null,
+    clearAttachmentsSignal = 0,
     isStreaming = false,
     isProcessingFiles = false,
     disabled = false,
@@ -338,6 +340,14 @@
     }
     if (fileInput) fileInput.value = '';
   }
+
+  // 选中文本时清空已有附件，避免重复上下文（通过信号触发，避免循环）
+  $effect(() => {
+    if (clearAttachmentsSignal > 0) {
+      attachments.forEach(revokePreview);
+      attachments = [];
+    }
+  });
 
   // 监听来自 main.ts 的自动附件事件（焦点进入文档时自动附加）
   $effect(() => {

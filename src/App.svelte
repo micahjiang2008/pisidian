@@ -104,6 +104,7 @@
   let isStreaming = $state(false);
   let sessionStats: SessionStats | null = $state(null);
   let selectedText: SelectedContext | null = $state(null);
+  let clearAttachmentsSignal = $state(0);
   let showSessionList = $state(false);
   let sessions = $state<SessionInfo[]>([]);
   let loadedSessionPath: string | null = $state(null);
@@ -138,6 +139,7 @@
     if (!settings?.autoAttachSelection) return;
     if (cachedSelection) {
       selectedText = cachedSelection;
+      clearAttachmentsSignal++;
     }
   }
 
@@ -485,6 +487,7 @@
       {models}
       {modelsLoading}
       initialModelValue
+      {clearAttachmentsSignal}
       {thinkingLevelMapByModel}
       {thinkingLevels}
       {selectedText}
