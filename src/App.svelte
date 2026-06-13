@@ -24,14 +24,9 @@
     settings?: PisidianSettings;
   }
 
-  import { DEFAULT_SETTINGS } from './settings';
-
   let { vaultPath, app, settings: initialSettings }: Props = $props();
-  let settings = $state({ ...DEFAULT_SETTINGS });
-
-  $effect(() => {
-    if (initialSettings) settings = initialSettings;
-  });
+  function initS() { return { ...initialSettings } as PisidianSettings; }
+  let settings = $state(initS());
 
   let models = $state<ModelProviderOption[]>([]);
   let modelsLoading = $state(true);

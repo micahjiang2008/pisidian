@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
   import type { PisidianSettings } from '../settings';
   import { DEFAULT_SETTINGS } from '../settings';
 
@@ -18,22 +17,12 @@
     local = { ...settings };
   });
 
-  function autoSave() {
+  function requestSave() {
     if (saveTimer) clearTimeout(saveTimer);
     saveTimer = setTimeout(async () => {
       await onSave(local);
     }, 300);
   }
-
-  // Trigger autoSave on any local change
-  $effect(() => {
-    void local.piPath;
-    void local.autoAttachFile;
-    void local.autoAttachSelection;
-    void local.selectionMaxLength;
-    void local.collapseThreshold;
-    autoSave();
-  });
 </script>
 
 <div class="pisidian-settings-page">
@@ -53,8 +42,12 @@
     <div class="setting-item-control">
       <input
         type="text"
-        bind:value={local.piPath}
+        value={local.piPath}
         placeholder="自动检测"
+        oninput={(e) => {
+          local.piPath = (e.target as HTMLInputElement).value;
+          requestSave();
+        }}
       />
     </div>
   </div>
@@ -72,8 +65,8 @@
         role="switch"
         aria-checked={local.autoAttachFile}
         tabindex="0"
-        onclick={() => local.autoAttachFile = !local.autoAttachFile}
-        onkeydown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); local.autoAttachFile = !local.autoAttachFile; } }}
+        onclick={() => { local.autoAttachFile = !local.autoAttachFile; requestSave(); }}
+        onkeydown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); local.autoAttachFile = !local.autoAttachFile; requestSave(); } }}
       >
         <input type="checkbox" tabindex="-1" checked={local.autoAttachFile} />
       </div>
@@ -93,8 +86,8 @@
         role="switch"
         aria-checked={local.autoAttachSelection}
         tabindex="0"
-        onclick={() => local.autoAttachSelection = !local.autoAttachSelection}
-        onkeydown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); local.autoAttachSelection = !local.autoAttachSelection; } }}
+        onclick={() => { local.autoAttachSelection = !local.autoAttachSelection; requestSave(); }}
+        onkeydown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); local.autoAttachSelection = !local.autoAttachSelection; requestSave(); } }}
       >
         <input type="checkbox" tabindex="-1" checked={local.autoAttachSelection} />
       </div>
@@ -110,10 +103,14 @@
     <div class="setting-item-control">
       <input
         type="number"
-        bind:value={local.selectionMaxLength}
+        value={local.selectionMaxLength}
         min="100"
         max="50000"
         step="100"
+        oninput={(e) => {
+          local.selectionMaxLength = Number((e.target as HTMLInputElement).value);
+          requestSave();
+        }}
       />
     </div>
   </div>
@@ -127,10 +124,14 @@
     <div class="setting-item-control">
       <input
         type="number"
-        bind:value={local.collapseThreshold}
+        value={local.collapseThreshold}
         min="0"
         max="1000"
         step="10"
+        oninput={(e) => {
+          local.collapseThreshold = Number((e.target as HTMLInputElement).value);
+          requestSave();
+        }}
       />
     </div>
   </div>
