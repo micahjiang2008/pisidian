@@ -184,7 +184,7 @@
   function handleKeyDown(event: KeyboardEvent) {
     if ((event as any).isComposing || event.key === 'Process') return;
 
-    if (event.key === 'Enter' && event.shiftKey) {
+    if (event.key === 'Enter' && (event.ctrlKey || event.metaKey)) {
       event.preventDefault();
       handleSubmit();
     }
