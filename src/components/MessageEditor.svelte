@@ -232,31 +232,36 @@
       return;
     }
 
-    // Obsidian 文件树拖放
-    const obsidianPath = event.dataTransfer?.getData('text/plain')?.trim();
-    if (obsidianPath && (obsidianPath.endsWith('.md') || obsidianPath.endsWith('.MD'))) {
-      try {
-        // eslint-disable-next-line @typescript-eslint/no-var-requires
-        const path = require('path');
-        // eslint-disable-next-line @typescript-eslint/no-var-requires
-        const fs = require('fs');
+    // Obsidian 文件树拖放（URI 格式）
+    const raw = event.dataTransfer?.getData('text/plain')?.trim() ?? '';
+    if (!raw.startsWith('obsidian://open')) return;
 
-        // 构建绝对路径
-        const baseDir = workDir || vaultPath || '';
-        const absolutePath = path.isAbsolute(obsidianPath)
-          ? obsidianPath
-          : path.join(baseDir, obsidianPath);
+    try {
+      const url = new URL(raw);
+      const fileParam = url.searchParams.get('file');
+      if (!fileParam) return;
 
-        if (fs.existsSync(absolutePath)) {
-          const buffer = fs.readFileSync(absolutePath);
-          const fileName = path.basename(absolutePath);
-          const blob = new Blob([buffer], { type: 'text/markdown' });
-          const fileObj = new File([blob], fileName, { type: 'text/markdown' });
-          appendFiles([fileObj]);
-        }
-      } catch {
-        // 静默失败
+      const relativePath = decodeURIComponent(fileParam);
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      const path = require('path');
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      const fs = require('fs');
+
+      const base = workDir || vaultPath || '';
+      let absolutePath = path.join(base, relativePath);
+      if (!fs.existsSync(absolutePath)) {
+        // 尝试加 .md 后缀
+        absolutePath = path.join(base, relativePath + '.md');
+        if (!fs.existsSync(absolutePath)) return;
       }
+
+      const buffer = fs.readFileSync(absolutePath);
+      const fileName = path.basename(absolutePath);
+      const blob = new Blob([buffer], { type: 'text/markdown' });
+      const fileObj = new File([blob], fileName, { type: 'text/markdown' });
+      appendFiles([fileObj]);
+    } catch {
+      // 静默失败
     }
   }
 
