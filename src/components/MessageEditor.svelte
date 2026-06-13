@@ -224,9 +224,39 @@
   function handleDrop(event: DragEvent) {
     event.preventDefault();
     isDragging = false;
+
+    // OS 文件拖放
     const files = Array.from(event.dataTransfer?.files ?? []);
     if (files.length > 0) {
       appendFiles(files);
+      return;
+    }
+
+    // Obsidian 文件树拖放
+    const obsidianPath = event.dataTransfer?.getData('text/plain')?.trim();
+    if (obsidianPath && (obsidianPath.endsWith('.md') || obsidianPath.endsWith('.MD'))) {
+      try {
+        // eslint-disable-next-line @typescript-eslint/no-var-requires
+        const path = require('path');
+        // eslint-disable-next-line @typescript-eslint/no-var-requires
+        const fs = require('fs');
+
+        // 构建绝对路径
+        const baseDir = workDir || vaultPath || '';
+        const absolutePath = path.isAbsolute(obsidianPath)
+          ? obsidianPath
+          : path.join(baseDir, obsidianPath);
+
+        if (fs.existsSync(absolutePath)) {
+          const buffer = fs.readFileSync(absolutePath);
+          const fileName = path.basename(absolutePath);
+          const blob = new Blob([buffer], { type: 'text/markdown' });
+          const fileObj = new File([blob], fileName, { type: 'text/markdown' });
+          appendFiles([fileObj]);
+        }
+      } catch {
+        // 静默失败
+      }
     }
   }
 
