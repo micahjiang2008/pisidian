@@ -1,5 +1,6 @@
 <script lang="ts">
   import CopyButton from '../CopyButton.svelte';
+  import MessageTime from '../MessageTime.svelte';
   import type { Message } from '../../types';
 
   let { message, showCursor = false }: {
@@ -17,7 +18,10 @@
   </div>
 
   {#if !message.isStreaming}
-    <CopyButton text={message.content} />
+    <div class="message__footer">
+      <MessageTime timestamp={message.timestamp} />
+      <CopyButton text={message.content} />
+    </div>
   {/if}
 
   {#if !message.isStreaming && message.usage}

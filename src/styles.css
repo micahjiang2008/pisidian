@@ -236,6 +236,24 @@
   line-height: 1.6;
 }
 
+/* ===== Message Footer (time + copy) ===== */
+
+.message__footer {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.message__time {
+  font-size: var(--font-smallest);
+  color: var(--text-faint);
+  line-height: 1;
+}
+
+.message--assistant .message__footer {
+  flex-direction: row-reverse;
+}
+
 /* ===== Copy Button ===== */
 
 .message__copy-btn {

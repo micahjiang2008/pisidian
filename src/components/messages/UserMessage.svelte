@@ -1,5 +1,6 @@
 <script lang="ts">
   import CopyButton from '../CopyButton.svelte';
+  import MessageTime from '../MessageTime.svelte';
   import type { Message } from '../../types';
 
   let { message, collapseThreshold = 80 }: {
@@ -46,5 +47,8 @@
     {/if}
   </div>
 
-  <CopyButton text={message.content} />
+  <div class="message__footer">
+    <MessageTime timestamp={message.timestamp} />
+    <CopyButton text={message.content} />
+  </div>
 </div>
