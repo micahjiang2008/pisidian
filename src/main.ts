@@ -1,10 +1,10 @@
-import { Plugin, PluginSettingTab, ItemView, WorkspaceLeaf, MarkdownView } from 'obsidian';
+import { Plugin, PluginSettingTab, ItemView, WorkspaceLeaf } from 'obsidian';
 import { mount, unmount } from 'svelte';
 import App from './App.svelte';
 import SettingsTabComponent from './components/SettingsTab.svelte';
 import { DEFAULT_SETTINGS } from './settings';
 import type { PisidianSettings } from './settings';
-import { InlineAIPopup } from './inline-ai';
+import { InlineGenerator } from './inline-generator';
 
 const PISIDIAN_ICON = 'brain-circuit';
 
@@ -40,19 +40,11 @@ export default class PisidianPlugin extends Plugin {
     this.addCommand({
       id: 'pisidian-inline-ai',
       name: 'AI 内联生成',
-      hotkeys: [{ modifiers: ['Ctrl', 'Shift'], key: 'A' }],
+      hotkeys: [{ modifiers: ['Ctrl', 'Shift'], key: 'G' }],
       editorCallback: (editor) => {
-        new InlineAIPopup(this.app, editor).show();
+        new InlineGenerator(this.app, editor).show();
       },
     });
-
-    // TODO: 临时测试 — 插件加载后自动弹出
-    setTimeout(() => {
-      const activeView = this.app.workspace.getActiveViewOfType(MarkdownView);
-      if (activeView?.editor) {
-        new InlineAIPopup(this.app, activeView.editor).show();
-      }
-    }, 500);
   }
 
   onunload() {

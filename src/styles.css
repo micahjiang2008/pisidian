@@ -1112,8 +1112,9 @@
   background: var(--background-primary);
   border: 1px solid var(--background-modifier-border-focus);
   border-radius: var(--radius-m);
-  padding: 6px;
+  padding: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12);
+  position: relative;
   max-height: 80vh;
   overflow-y: auto;
 }
@@ -1150,6 +1151,7 @@
 .pisidian-inline-popup__selection-info {
   font-size: var(--font-smaller);
   font-family: var(--font-text);
+  font-style: italic;
   line-height: 1.6;
   color: var(--text-faint);
   padding: 4px;
@@ -1158,6 +1160,82 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+/* input row: textarea + send icon */
+.pisidian-inline-popup__input-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 4px;
+  flex-wrap: nowrap;
+}
+
+.pisidian-inline-popup__star-icon {
+  flex: none;
+  width: 20px !important;
+  height: 20px !important;
+  color: var(--text-faint);
+}
+
+.pisidian-inline-popup__star-icon svg {
+  width: 16px;
+  height: 16px;
+}
+
+.pisidian-inline-popup__input-row .pisidian-inline-popup__textarea {
+  flex: 1 1 0%;
+  min-width: 0;
+  width: 0;
+}
+
+.pisidian-inline-popup__send-icon {
+  display: inline-flex !important;
+  flex: none !important;
+  width: 28px !important;
+  height: 28px !important;
+  min-width: 28px !important;
+  max-width: 28px !important;
+  color: var(--interactive-accent);
+  cursor: pointer;
+}
+
+.pisidian-inline-popup__send-icon:hover {
+  opacity: 0.8;
+}
+
+.pisidian-inline-popup__send-icon--stop {
+  color: var(--color-red) !important;
+}
+
+.pisidian-inline-popup__textarea--readonly {
+  color: var(--text-faint);
+  cursor: default;
+}
+
+.pisidian-inline-popup__send-icon svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* thinking indicator */
+.pisidian-inline-popup__thinking-indicator {
+  display: none;
+  align-items: center;
+  gap: 6px;
+  padding: 4px;
+  font-size: var(--font-smaller);
+  color: var(--text-faint);
+}
+
+.pisidian-inline-popup__thinking-indicator svg {
+  width: 16px;
+  height: 16px;
+  animation: pisidian-sparkle-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pisidian-sparkle-pulse {
+  0%, 100% { opacity: 0.35; }
+  50% { opacity: 1; }
 }
 
 /* preview — streaming output */
@@ -1172,6 +1250,12 @@
   overflow-wrap: anywhere;
   max-height: 40vh;
   overflow-y: auto;
+  opacity: 0;
+  transition: opacity 0.3s ease-out;
+}
+
+.pisidian-inline-popup__preview--show {
+  opacity: 1;
 }
 
 /* thinking block */
