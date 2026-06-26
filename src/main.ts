@@ -22,17 +22,6 @@ export default class PisidianPlugin extends Plugin {
       this.activateView();
     });
 
-    // Add a status bar item
-    const statusBarItem = this.addStatusBarItem();
-    statusBarItem.setText(this.settings.greeting);
-
-    // Listen for settings changes to update the status bar
-    this.registerEvent(
-      (this.app.workspace as any).on('pisidian:settings-changed', () => {
-        statusBarItem.setText(this.settings.greeting);
-      }),
-    );
-
     // Register a custom view type
     this.registerView('pisidian-view', (leaf) => new PisidianView(leaf, this));
 
